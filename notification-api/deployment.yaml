@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-api
+  labels:
+    app: notification-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notification-api
+  template:
+    metadata:
+      labels:
+        app: notification-api
+    spec:
+      containers:
+        - name: notification-api
+          image: notification-api:latest
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "kubernetes"
+            - name: TZ
+              value: "America/Sao_Paulo"
+            - name: NOTIFICATION_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: notification-api-secret
+                  key: notification_username
+            - name: NOTIFICATION_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: notification-api-secret
+                  key: notification_password
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: notification-api-secret
+                  key: postgres_username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: notification-api-secret
+                  key: postgres_password
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15

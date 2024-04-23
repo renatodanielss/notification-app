@@ -1,0 +1,40 @@
+package br.com.notification.user.api.service.user;
+
+import br.com.notification.user.api.mapper.UserMapper;
+import br.com.notification.user.api.model.User;
+import br.com.notification.user.api.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@Transactional(rollbackFor = Exception.class)
+@SuppressWarnings("unused")
+public class UserService implements IUserService {
+
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+
+    @Autowired
+    public UserService(UserRepository userRepository, UserMapper userMapper) {
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+    }
+
+    @Override
+    @Transactional
+    public CreateUserResponseDTO save(CreateUserPayloadDTO createUserPayloadDTO) {
+        User user = this.userMapper.dtoToEntity(createUserPayloadDTO);
+        user = this.userRepository.save(user);
+
+        return this.userMapper.entityToDto(user);
+    }
+
+    @Override
+    @Transactional
+    public List<FindUserResponseDTO> findAllByNameAndEmail(String name, String email) {
+        return this.userRepository.findAllByNameAndEmail(name, email);
+    }
+}

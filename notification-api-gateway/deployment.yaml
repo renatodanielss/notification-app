@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-api-gateway
+  labels:
+    app: notification-api-gateway
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notification-api-gateway
+  template:
+    metadata:
+      labels:
+        app: notification-api-gateway
+    spec:
+      containers:
+        - name: notification-api-gateway
+          image: notification-api-gateway:latest
+          ports:
+            - containerPort: 9000
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "kubernetes"
+            - name: TZ
+              value: "America/Sao_Paulo"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 9000
+            initialDelaySeconds: 10
+            periodSeconds: 15

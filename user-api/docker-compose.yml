@@ -1,0 +1,13 @@
+services:
+  user-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: user-api:latest
+    container_name: user-api
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

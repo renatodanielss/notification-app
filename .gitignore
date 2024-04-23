@@ -1,0 +1,25 @@
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# IntelliJ files
+*.idea
+*.iml
+
+*target
+*bin
+*.classpath
+*.settings
+*.project
+*.tern-project
+*${sys:catalina.home}/
+*mvnw
+*mvnw.cmd
+*.factorypath
+*.springBeans
+
+*src/main/webapp/
+*.DS_Store
