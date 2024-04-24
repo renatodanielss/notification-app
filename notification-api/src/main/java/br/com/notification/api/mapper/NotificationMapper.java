@@ -3,9 +3,9 @@ package br.com.notification.api.mapper;
 import br.com.notification.api.model.Notification;
 import br.com.notification.api.model.NotificationStatus;
 import br.com.notification.api.model.User;
-import br.com.notification.api.service.notification.CreateNotificationPayloadDTO;
-import br.com.notification.api.service.notification.CreateAndUpdateNotificationResponseDTO;
-import br.com.notification.api.service.notification.UpdateNotificationPayloadDTO;
+import br.com.notification.api.model.dto.CreateNotificationPayloadDTO;
+import br.com.notification.api.model.dto.CreateAndUpdateNotificationResponseDTO;
+import br.com.notification.api.model.dto.UpdateNotificationPayloadDTO;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")

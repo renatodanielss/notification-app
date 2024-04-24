@@ -1,7 +1,11 @@
-package br.com.notification.api.service.notification;
+package br.com.notification.api.service;
 
 import br.com.notification.api.mapper.NotificationMapper;
 import br.com.notification.api.model.Notification;
+import br.com.notification.api.model.dto.CreateAndUpdateNotificationResponseDTO;
+import br.com.notification.api.model.dto.CreateNotificationPayloadDTO;
+import br.com.notification.api.model.dto.FindNotificationResponseDTO;
+import br.com.notification.api.model.dto.UpdateNotificationPayloadDTO;
 import br.com.notification.api.repository.NotificationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;

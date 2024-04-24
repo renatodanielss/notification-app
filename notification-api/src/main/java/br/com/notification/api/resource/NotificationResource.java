@@ -1,6 +1,10 @@
 package br.com.notification.api.resource;
 
-import br.com.notification.api.service.notification.*;
+import br.com.notification.api.model.dto.CreateAndUpdateNotificationResponseDTO;
+import br.com.notification.api.model.dto.CreateNotificationPayloadDTO;
+import br.com.notification.api.model.dto.FindNotificationResponseDTO;
+import br.com.notification.api.model.dto.UpdateNotificationPayloadDTO;
+import br.com.notification.api.service.INotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -58,7 +62,7 @@ public class NotificationResource {
 	})
 	@SecurityRequirement(name = "basicAuth")
 	public @ResponseBody ResponseEntity<CreateAndUpdateNotificationResponseDTO> partialUpdate(@PathVariable("id") Integer id,
-																					   @RequestBody @Valid UpdateNotificationPayloadDTO updateNotificationPayloadDTO) {
+																							  @RequestBody @Valid UpdateNotificationPayloadDTO updateNotificationPayloadDTO) {
 		return new ResponseEntity<>(this.notificationService.partialUpdate(id, updateNotificationPayloadDTO), HttpStatus.OK);
 	}
 

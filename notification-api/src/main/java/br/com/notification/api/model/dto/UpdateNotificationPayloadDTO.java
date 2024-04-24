@@ -1,20 +1,18 @@
-package br.com.notification.api.service.notification;
+package br.com.notification.api.model.dto;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class CreateNotificationPayloadDTO {
+public class UpdateNotificationPayloadDTO {
     @Size(max = 255)
-    @NotNull
     private String content;
 
-    @NotNull
     private Integer userId;
 
-    @NotNull
+    private Date scheduledTime;
+
     private Integer notificationStatusId;
 }

@@ -1,7 +1,7 @@
 package br.com.notification.api.repository;
 
 import br.com.notification.api.model.Notification;
-import br.com.notification.api.service.notification.FindNotificationResponseDTO;
+import br.com.notification.api.model.dto.FindNotificationResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Integer> {
-    @Query("SELECT NEW br.com.notification.api.service.notification.FindNotificationResponseDTO(" +
+    @Query("SELECT NEW br.com.notification.api.model.dto.FindNotificationResponseDTO(" +
             "n.id, " +
             "n.content, " +
             "n.user.name, " +
