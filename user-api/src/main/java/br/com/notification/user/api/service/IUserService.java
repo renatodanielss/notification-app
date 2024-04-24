@@ -1,6 +1,8 @@
-package br.com.notification.user.api.service.user;
+package br.com.notification.user.api.service;
 
-import br.com.notification.user.api.model.User;
+import br.com.notification.user.api.model.dto.CreateUserPayloadDTO;
+import br.com.notification.user.api.model.dto.CreateUserResponseDTO;
+import br.com.notification.user.api.model.dto.FindUserResponseDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

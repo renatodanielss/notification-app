@@ -1,4 +1,4 @@
-package br.com.notification.user.api.service.user;
+package br.com.notification.user.api.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

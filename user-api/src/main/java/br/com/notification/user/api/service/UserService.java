@@ -1,7 +1,10 @@
-package br.com.notification.user.api.service.user;
+package br.com.notification.user.api.service;
 
 import br.com.notification.user.api.mapper.UserMapper;
 import br.com.notification.user.api.model.User;
+import br.com.notification.user.api.model.dto.CreateUserPayloadDTO;
+import br.com.notification.user.api.model.dto.CreateUserResponseDTO;
+import br.com.notification.user.api.model.dto.FindUserResponseDTO;
 import br.com.notification.user.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

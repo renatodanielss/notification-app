@@ -1,9 +1,9 @@
 package br.com.notification.user.api.resource;
 
-import br.com.notification.user.api.service.user.CreateUserPayloadDTO;
-import br.com.notification.user.api.service.user.CreateUserResponseDTO;
-import br.com.notification.user.api.service.user.FindUserResponseDTO;
-import br.com.notification.user.api.service.user.IUserService;
+import br.com.notification.user.api.model.dto.CreateUserPayloadDTO;
+import br.com.notification.user.api.model.dto.CreateUserResponseDTO;
+import br.com.notification.user.api.model.dto.FindUserResponseDTO;
+import br.com.notification.user.api.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -59,7 +59,6 @@ public class UserResource {
 			@ApiResponse(responseCode = "404", description = "Not Found"),
 			@ApiResponse(responseCode = "500", description = "Internal Server Error")
 	})
-	@SecurityRequirement(name = "basicAuth")
 	public @ResponseBody ResponseEntity<List<FindUserResponseDTO>> findAllByNameAndEmail(@RequestParam(value = "name", required = false) String name,
 																		@RequestParam(value = "email", required = false) String email) {
 		return new ResponseEntity<>(this.userService.findAllByNameAndEmail(name, email), HttpStatus.OK);
