@@ -14,7 +14,7 @@ Propus uma arquitetura de microsserviços, com o objetivo de diminuir o máximo 
 
 Foi utilizado containers do Docker junto com o Kubernetes para realizar os deploys e fazer a escalabilidade da aplicação.
 
-Cada microsserviço se trata de apis Rest, utilizando Java 17, Spring Boot 3, arquitetura de camadas e o design pattern MVC, além de um scheduler para verificar os agendamentos, além de migrations para facilitar as atualizações do banco de dados. Fora isso, a aplicação conta ainda com um API Gateway para centralizar a documentação das APIs e também rotear o acesso as mesmas.
+Cada microsserviço se trata de apis Rest, utilizando Java 17, Spring Boot 3, arquitetura de camadas e o design pattern MVC, um scheduler para verificar os agendamentos, além de migrations para facilitar as atualizações do banco de dados. A aplicação conta ainda com um API Gateway para centralizar a documentação das APIs, o security, rotear e distribuir os acessos as mesmas.
 
 Os 3 microsserviços utilizam uma instância do PostgreSQL também disponível como uma instância do Kubernetes. Trata-se de um banco que oferece configurações para escalabilidade, embora, ainda não tenha sido configurado para tal.
 
