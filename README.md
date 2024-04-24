@@ -2,7 +2,7 @@
 
 Repositório para o projeto Notification APP
 
-![Diagrama de Arquitetura](notification_app.png)
+![Diagrama de Arquitetura](notification-app.png)
 
 ### Sobre o Projeto
 
