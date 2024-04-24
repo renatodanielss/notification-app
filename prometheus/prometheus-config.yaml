@@ -18,6 +18,10 @@ data:
         metrics_path: '/actuator/prometheus'
         static_configs:
           - targets: ['user-api-service:8081']
+      - job_name: 'schedule-api-service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['schedule-api-service:8082']
       - job_name: 'notification-api-gateway-service'
         metrics_path: '/actuator/prometheus'
         static_configs:
