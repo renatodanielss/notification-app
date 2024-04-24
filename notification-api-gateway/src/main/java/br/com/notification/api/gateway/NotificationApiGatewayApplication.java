@@ -1,4 +1,4 @@
-package br.com.notification.api.gateway.gateway;
+package br.com.notification.api.gateway;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;

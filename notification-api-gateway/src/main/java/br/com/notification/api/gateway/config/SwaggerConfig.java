@@ -1,4 +1,4 @@
-package br.com.notification.api.gateway.gateway.config;
+package br.com.notification.api.gateway.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -52,15 +52,6 @@ public class SwaggerConfig {
         return new io.swagger.v3.oas.models.info.Contact()
                 .name("Notification API Gateway");
     }
-
-//    @Bean
-//    public RouteLocator routeLocator(RouteLocatorBuilder builder) {
-//        return builder
-//                .routes()
-//                .route(r -> r.path("/notifications/v3/api-docs").and().method(HttpMethod.GET).uri("lb://notifications"))
-//                .route(r -> r.path("/users/v3/api-docs").and().method(HttpMethod.GET).uri("lb://users"))
-//    .build();
-//    }
 
     @Bean
     public CommandLineRunner openApiGroups(

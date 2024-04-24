@@ -25,6 +25,16 @@ spec:
               value: "kubernetes"
             - name: TZ
               value: "America/Sao_Paulo"
+            - name: NOTIFICATION_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: notification-api-secret
+                  key: notification_username
+            - name: NOTIFICATION_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: notification-api-secret
+                  key: notification_password
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
