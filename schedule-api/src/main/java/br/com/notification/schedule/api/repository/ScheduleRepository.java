@@ -14,7 +14,7 @@ import java.util.List;
 
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
-    @Query("SELECT NEW br.com.notification.schedule.api.model.dto.FindScheduleResponseDTO( " +
+    @Query(value = "SELECT DISTINCT NEW br.com.notification.schedule.api.model.dto.FindScheduleResponseDTO( " +
             "   s.id, " +
             "   s.content, " +
             "   s.notificationStatus.name, " +
@@ -23,7 +23,12 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
             "INNER JOIN UserSchedule us ON s.id = us.pk.scheduleId " +
             "INNER JOIN User u ON us.pk.userId = u.id " +
             "WHERE (:search IS NULL OR LOWER(s.content) LIKE LOWER(CONCAT('%', CAST(:search AS STRING), '%'))) AND " +
-            "   (:userId IS NULL OR u.id = :userId)")
+            "   (:userId IS NULL OR u.id = :userId)",
+            countQuery = "SELECT COUNT(DISTINCT s.id) FROM Schedule s " +
+                    "   INNER JOIN UserSchedule us ON s.id = us.pk.scheduleId " +
+                    "   INNER JOIN User u ON us.pk.userId = u.id " +
+                    "WHERE (:search IS NULL OR LOWER(s.content) LIKE LOWER(CONCAT('%', CAST(:search AS STRING), '%'))) AND " +
+                    "   (:userId IS NULL OR u.id = :userId)")
     Page<FindScheduleResponseDTO> findAllByUserIdAndSearch(@Param("userId") Integer userId, @Param("search") String search, Pageable pageable);
 
     @Query("SELECT s FROM Schedule s WHERE " +

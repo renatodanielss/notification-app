@@ -9,12 +9,14 @@ import br.com.notification.schedule.api.model.dto.FindScheduleResponseDTO;
 import br.com.notification.schedule.api.model.dto.UpdateSchedulePayloadDTO;
 import br.com.notification.schedule.api.repository.NotificationRepository;
 import br.com.notification.schedule.api.repository.ScheduleRepository;
+import br.com.notification.schedule.api.repository.UserRepository;
 import br.com.notification.schedule.api.repository.UserScheduleRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -31,8 +33,8 @@ public class ScheduleService implements IScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
     private final UserScheduleRepository userScheduleRepository;
-
     private final ScheduleMapper scheduleMapper;
     private final NotificationMapper notificationMapper;
 
@@ -40,10 +42,11 @@ public class ScheduleService implements IScheduleService {
 
     @Autowired
     public ScheduleService(ScheduleRepository scheduleRepository, NotificationRepository notificationRepository,
-                           UserScheduleRepository userScheduleRepository, ScheduleMapper scheduleMapper,
-                           NotificationMapper notificationMapper) {
+                           UserRepository userRepository, UserScheduleRepository userScheduleRepository,
+                           ScheduleMapper scheduleMapper, NotificationMapper notificationMapper) {
         this.scheduleRepository = scheduleRepository;
         this.notificationRepository = notificationRepository;
+        this.userRepository = userRepository;
         this.userScheduleRepository = userScheduleRepository;
         this.scheduleMapper = scheduleMapper;
         this.notificationMapper = notificationMapper;
@@ -75,7 +78,7 @@ public class ScheduleService implements IScheduleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CreateAndUpdateScheduleResponseDTO partialUpdate(Integer scheduleId, UpdateSchedulePayloadDTO updateSchedulePayloadDTO) {
-        if (updateSchedulePayloadDTO.getScheduledTime().compareTo(new Date()) < 0) {
+        if (updateSchedulePayloadDTO.getScheduledTime() != null && updateSchedulePayloadDTO.getScheduledTime().compareTo(new Date()) < 0) {
             throw new IllegalArgumentException("It's not possible to create a schedule with scheduledTime before current datetime.");
         }
 
@@ -89,15 +92,22 @@ public class ScheduleService implements IScheduleService {
         final Schedule scheduleSaved = this.scheduleRepository.save(schedule);
 
         List<UserSchedule> userSchedules = new ArrayList<>();
-        updateSchedulePayloadDTO.getUserIds().stream().forEach(userId -> {
-            UserSchedule userSchedule = new UserSchedule(new UserSchedulePK(userId, scheduleSaved.getId()));
-            userSchedules.add(userSchedule);
-        });
-        this.userScheduleRepository.deleteAllByScheduleIdAndUserIds(
-                scheduleId,
-                userSchedules.stream().map(us -> us.getPk().getUserId()).collect(Collectors.toList())
-        );
-        this.userScheduleRepository.saveAll(userSchedules);
+        if (updateSchedulePayloadDTO != null && updateSchedulePayloadDTO.getUserIds() != null && !updateSchedulePayloadDTO.getUserIds().isEmpty()) {
+            updateSchedulePayloadDTO.getUserIds().forEach(userId -> {
+                UserSchedule userSchedule = new UserSchedule(new UserSchedulePK(userId, scheduleSaved.getId()));
+                userSchedules.add(userSchedule);
+            });
+            this.userScheduleRepository.deleteAllByScheduleIdAndUserIds(
+                    scheduleId,
+                    userSchedules.stream().map(us -> us.getPk().getUserId()).collect(Collectors.toList())
+            );
+            this.userScheduleRepository.saveAll(userSchedules);
+            CreateAndUpdateScheduleResponseDTO createAndUpdateScheduleResponseDTO = this.scheduleMapper.entityToDto(schedule);
+            createAndUpdateScheduleResponseDTO.setUserIds(
+                    userSchedules.stream().map(us -> us.getPk().getUserId()).collect(Collectors.toList())
+            );
+            return createAndUpdateScheduleResponseDTO;
+        }
 
         return this.scheduleMapper.entityToDto(schedule);
     }
@@ -105,7 +115,21 @@ public class ScheduleService implements IScheduleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Page<FindScheduleResponseDTO> findAllByUserIdAndSearch(Integer userId, String search, Pageable pageable) {
-        return this.scheduleRepository.findAllByUserIdAndSearch(userId, search, pageable);
+        Page<FindScheduleResponseDTO> findScheduleResponseDTOs = this.scheduleRepository.findAllByUserIdAndSearch(userId, search, pageable);
+        List<UserSchedule> userSchedules = this.userScheduleRepository.findAllByScheduleIds(
+                findScheduleResponseDTOs.getContent().stream().map(s -> s.getId()).collect(Collectors.toList())
+        );
+
+        List<FindScheduleResponseDTO> editedFindScheduleResponseDTOs = new ArrayList<>();
+        for (FindScheduleResponseDTO findScheduleResponseDTO : findScheduleResponseDTOs.getContent()) {
+            findScheduleResponseDTO.setUserIds(
+                    userSchedules.stream()
+                            .filter(us -> us.getPk().getScheduleId().equals(findScheduleResponseDTO.getId()))
+                            .map(us -> us.getPk().getUserId()).collect(Collectors.toList()));
+            editedFindScheduleResponseDTOs.add(findScheduleResponseDTO);
+        }
+
+        return new PageImpl<>(editedFindScheduleResponseDTOs, pageable, findScheduleResponseDTOs.getTotalElements());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -128,19 +152,25 @@ public class ScheduleService implements IScheduleService {
     protected List<Notification> saveScheduleStatusesAndAddNotifications(List<Schedule> schedules) {
         List<Notification> notifications = new ArrayList<>();
         for (Schedule schedule : schedules) {
+            List<Integer> userIds =
+                    schedule.getUserSchedules().stream().map(us -> us.getPk().getUserId()).collect(Collectors.toList());
+            Set<Integer> optOutUserIds = new HashSet<>(this.userRepository.findOptOutByUserIds(userIds));
+
             schedule.setScheduleStatus(new ScheduleStatus(ScheduleStatus.IN_PROGRESS));
             this.scheduleRepository.save(schedule);
             for (UserSchedule userSchedule : schedule.getUserSchedules()) {
-                Notification notification = this.notificationMapper.scheduleToNotification(schedule);
-                notification.setUser(new User(userSchedule.getPk().getUserId()));
-                notifications.add(notification);
+                if (!optOutUserIds.contains(userSchedule.getPk().getUserId())) {
+                    Notification notification = this.notificationMapper.scheduleToNotification(schedule);
+                    notification.setUser(new User(userSchedule.getPk().getUserId()));
+                    notifications.add(notification);
+                }
             }
         }
         return notifications;
     }
 
     @Transactional(rollbackFor = Exception.class)
-    protected void createNotificationsAndSchedules(List<Notification> notifications, List<Schedule> schedules) {
+    protected void createNotificationsAndUpdateSchedule(List<Notification> notifications, List<Schedule> schedules) {
         try {
             this.notificationRepository.saveAll(notifications);
             for (Schedule schedule : schedules) {
@@ -155,6 +185,7 @@ public class ScheduleService implements IScheduleService {
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Scheduled(fixedRate = 60000)
     public void sendScheduledNotifications() {
         logger.info("Starting schedule verification...");
@@ -162,7 +193,7 @@ public class ScheduleService implements IScheduleService {
         logger.info(String.format("%d schedules found", schedules.size()));
 
         List<Notification> notifications = saveScheduleStatusesAndAddNotifications(schedules);
-        createNotificationsAndSchedules(notifications, schedules);
+        createNotificationsAndUpdateSchedule(notifications, schedules);
 
         logger.info("Schedule process finished successfully!");
     }

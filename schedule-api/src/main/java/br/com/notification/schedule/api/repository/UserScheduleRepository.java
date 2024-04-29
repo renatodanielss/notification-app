@@ -14,6 +14,10 @@ import java.util.List;
 @Repository
 public interface UserScheduleRepository extends JpaRepository<UserSchedule, UserSchedulePK> {
 
+    @Query("SELECT us FROM UserSchedule us " +
+            "WHERE us.pk.scheduleId IN :scheduleIds")
+    List<UserSchedule> findAllByScheduleIds(@Param("scheduleIds") List<Integer> scheduleIds);
+
     @Transactional
     @Modifying
     @Query("DELETE FROM UserSchedule us " +
