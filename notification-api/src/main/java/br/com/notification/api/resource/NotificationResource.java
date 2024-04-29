@@ -1,5 +1,6 @@
 package br.com.notification.api.resource;
 
+import br.com.notification.api.config.annotation.SortRequestParam;
 import br.com.notification.api.model.dto.CreateAndUpdateNotificationResponseDTO;
 import br.com.notification.api.model.dto.CreateNotificationPayloadDTO;
 import br.com.notification.api.model.dto.FindNotificationResponseDTO;
@@ -10,7 +11,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -61,9 +67,11 @@ public class NotificationResource {
 			@ApiResponse(responseCode = "500", description = "Internal Server Error")
 	})
 	@SecurityRequirement(name = "basicAuth")
-	public @ResponseBody ResponseEntity<CreateAndUpdateNotificationResponseDTO> partialUpdate(@PathVariable("id") Integer id,
-																							  @RequestBody @Valid UpdateNotificationPayloadDTO updateNotificationPayloadDTO) {
-		return new ResponseEntity<>(this.notificationService.partialUpdate(id, updateNotificationPayloadDTO), HttpStatus.OK);
+	public @ResponseBody ResponseEntity<CreateAndUpdateNotificationResponseDTO> partialUpdate(
+										@PathVariable("id") Integer id,
+										@RequestBody @Valid UpdateNotificationPayloadDTO updateNotificationPayloadDTO) {
+		return new ResponseEntity<>(
+				this.notificationService.partialUpdate(id, updateNotificationPayloadDTO), HttpStatus.OK);
 	}
 
 	@GetMapping
@@ -78,9 +86,13 @@ public class NotificationResource {
 			@ApiResponse(responseCode = "500", description = "Internal Server Error")
 	})
 	@SecurityRequirement(name = "basicAuth")
-	public @ResponseBody ResponseEntity<List<FindNotificationResponseDTO>> findAllByUserId(
+	public @ResponseBody ResponseEntity<Page<FindNotificationResponseDTO>> findAllByUserId(
 						@RequestParam("userId") Integer userId,
-						@RequestParam(value = "notificationStatusId", required = false) Integer notificationStatusId) {
-		return new ResponseEntity<>(this.notificationService.findAllByUserId(userId, notificationStatusId), HttpStatus.OK);
+						@RequestParam(value = "notificationStatusId", required = false) Integer notificationStatusId,
+						@ParameterObject Pageable pageable,
+						@SortRequestParam Sort sort) {
+		PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+		return new ResponseEntity<>(this.notificationService.findAllByUserId(userId, notificationStatusId, pageRequest),
+				HttpStatus.OK);
 	}
 }
