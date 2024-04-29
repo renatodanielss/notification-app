@@ -3,7 +3,7 @@ package br.com.notification.user.api.model.dto;
 import lombok.Data;
 
 @Data
-public class CreateUserResponseDTO {
+public class CreateAndUpdateUserResponseDTO {
     private Integer id;
     private String name;
     private String email;

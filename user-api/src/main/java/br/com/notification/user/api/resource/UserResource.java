@@ -1,8 +1,9 @@
 package br.com.notification.user.api.resource;
 
+import br.com.notification.user.api.model.dto.CreateAndUpdateUserResponseDTO;
 import br.com.notification.user.api.model.dto.CreateUserPayloadDTO;
-import br.com.notification.user.api.model.dto.CreateUserResponseDTO;
 import br.com.notification.user.api.model.dto.FindUserResponseDTO;
+import br.com.notification.user.api.model.dto.UpdateUserPayloadDTO;
 import br.com.notification.user.api.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -44,8 +45,25 @@ public class UserResource {
 			@ApiResponse(responseCode = "500", description = "Internal Server Error")
 	})
 	@SecurityRequirement(name = "basicAuth")
-	public @ResponseBody ResponseEntity<CreateUserResponseDTO> save(@RequestBody @Valid CreateUserPayloadDTO createUserPayloadDTO) {
+	public @ResponseBody ResponseEntity<CreateAndUpdateUserResponseDTO> save(@RequestBody @Valid CreateUserPayloadDTO createUserPayloadDTO) {
 		return new ResponseEntity<>(this.userService.save(createUserPayloadDTO), HttpStatus.CREATED);
+	}
+
+	@PatchMapping("/{id}")
+	@Operation(
+			summary = "Updates an user",
+			description = "This operation Updates an user"
+	)
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "OK"),
+			@ApiResponse(responseCode = "400", description = "Bad Request"),
+			@ApiResponse(responseCode = "404", description = "Not Found"),
+			@ApiResponse(responseCode = "500", description = "Internal Server Error")
+	})
+	@SecurityRequirement(name = "basicAuth")
+	public @ResponseBody ResponseEntity<CreateAndUpdateUserResponseDTO> partialUpdate(@PathVariable("id") Integer id,
+																							  @RequestBody @Valid UpdateUserPayloadDTO updateUserPayloadDTO) {
+		return new ResponseEntity<>(this.userService.partialUpdate(id, updateUserPayloadDTO), HttpStatus.OK);
 	}
 
 	@GetMapping
