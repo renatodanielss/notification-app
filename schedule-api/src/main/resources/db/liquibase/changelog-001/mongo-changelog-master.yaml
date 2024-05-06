@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: tag_1.0.0
+      author: renato
+      changes:
+        - tagDatabase:
+          tag: 1.0.0
+  - include:
+      file: /db/liquibase/changelog-001/db.changelog-001-create-schedule-collection.yaml

@@ -1,72 +1,45 @@
 package br.com.notification.schedule.api.model;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Entity
-@Table(name = "schedule")
+@Document
 @Data
 @NoArgsConstructor
 public class Schedule {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Integer id;
+    private String id;
 
-    @Column(name = "content")
     @Size(max = 255)
     @NotNull
     private String content;
 
-    @ManyToOne
-    @JoinColumn(name = "notification_status_id")
-    private NotificationStatus notificationStatus;
+    @NotNull
+    private Integer notificationStatusId;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "scheduled_time", columnDefinition = "DATETIME")
+    @NotNull
     private Date scheduledTime;
 
-    @ManyToOne
-    @JoinColumn(name = "schedule_status_id")
-    private ScheduleStatus scheduleStatus;
+    @NotNull
+    private Integer scheduleStatusId;
 
-    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.REMOVE}, fetch = FetchType.EAGER)
-    @JoinColumn(name = "schedule_id", insertable = false, updatable = false)
-    private List<UserSchedule> userSchedules = new ArrayList<>();
+    @NotBlank
+    @NotNull
+    private List<Integer> userIds;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", columnDefinition = "DATETIME", updatable = false)
-    private Date createdAt;
+    private Date createdAt = new Date();
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at", columnDefinition = "DATETIME")
-    private Date updatedAt;
+    private Date updatedAt = new Date();
 
-    public Schedule(Integer id) {
+    public Schedule(String id) {
         this.id = id;
-    }
-
-    @PrePersist
-    void onPersist() {
-        if (this.createdAt == null) {
-            this.createdAt = new Date();
-        }
-        if (this.updatedAt == null) {
-            this.updatedAt = new Date();
-        }
-    }
-
-    @PreUpdate
-    void onUpdate() {
-        this.updatedAt = new Date();
     }
 }

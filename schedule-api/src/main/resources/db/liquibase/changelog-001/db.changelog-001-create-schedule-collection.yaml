@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: create_schedule_collection
+      author: renato
+      changes:
+        - createCollection:
+            collectionName: schedule
+            options:
+              validator:
+                $jsonSchema:
+                  bsonType: "object"
+                  required: [ "content", "notificationStatusId", "scheduledTime", "scheduleStatusId", "userIds" ]
+                  properties:
+                    _id:
+                      bsonType: "objectId"
+                      description: "Schedule ID"
+                    content:
+                      bsonType: "string"
+                      description: "Schedule content"
+                      maxLength: 255
+                    notificationStatusId:
+                      bsonType: "int"
+                      description: "Notification status ID"
+                    scheduledTime:
+                      bsonType: "date"
+                      description: "Scheduled time"
+                    scheduleStatusId:
+                      bsonType: "int"
+                      description: "Schedule status ID"
+                    userIds:
+                      bsonType: "array"
+                      description: "List of user IDs associated with the schedule"
+                      items:
+                        bsonType: "int"
+                        description: "User ID"
+                    createdAt:
+                      bsonType: "date"
+                      description: "Creation date of the schedule"
+                    updatedAt:
+                      bsonType: "date"
+                      description: "Last update date of the schedule"
+      rollback:
+        - dropCollection:
+            collectionName: schedule

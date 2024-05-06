@@ -4,18 +4,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.server.SecurityWebFilterChain;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebFluxSecurity
 public class SecurityConfig {
 
     @Value("${NOTIFICATION_USERNAME: #{null}}")
@@ -25,25 +24,25 @@ public class SecurityConfig {
     private String password;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers("/v3/api-docs", "/actuator/health",
+    public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) throws Exception {
+        http.authorizeExchange(authorizeRequests -> authorizeRequests
+                        .pathMatchers("/v3/api-docs", "/actuator/health",
                                 "/actuator/health/liveness", "/actuator/health/readiness",
                                 "/actuator/prometheus", "/actuator/metrics").permitAll()
-                        .anyRequest().authenticated())
+                        .anyExchange().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable);
+                .csrf(ServerHttpSecurity.CsrfSpec::disable);
         return http.build();
     }
 
     @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
+    public MapReactiveUserDetailsService userDetailsService() {
         UserDetails user = User.withUsername(username)
                 .password(encoder().encode(password))
                 .roles("USER")
                 .build();
-        return new InMemoryUserDetailsManager(user);
+        return new MapReactiveUserDetailsService(user);
     }
 
     @Bean

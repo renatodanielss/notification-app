@@ -21,6 +21,9 @@
 		<spring-cloud.version>2023.0.1</spring-cloud.version>
 		<org.projectlombok.version>1.18.20</org.projectlombok.version>
 		<org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
+		<liquibase-mongo-ext.version>4.24.0</liquibase-mongo-ext.version>
+		<liquibase-maven-plugin.version>4.27.0</liquibase-maven-plugin.version>
+		<mongodb-driver-sync.version>4.11.1</mongodb-driver-sync.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
@@ -38,19 +41,34 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongodb-driver-sync</artifactId>
+			<version>${mongodb-driver-sync.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongo-java-driver</artifactId>
+			<version>3.12.14</version>
+		</dependency>
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.liquibase.ext</groupId>
+			<artifactId>liquibase-mongodb</artifactId>
+			<version>${liquibase-mongo-ext.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-log4j2</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web-services</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -72,25 +90,18 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-tomcat</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.annotation</groupId>
 			<artifactId>jakarta.annotation-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate.validator</groupId>
-			<artifactId>hibernate-validator</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -106,12 +117,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.liquibase</groupId>
-			<artifactId>liquibase-core</artifactId>
+			<artifactId>springdoc-openapi-webflux-ui</artifactId>
+			<version>1.8.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mapstruct</groupId>
@@ -138,6 +145,20 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>br.com.notification.schedule.api.ScheduleApiApplication</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<appendAssemblyId>false</appendAssemblyId>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
@@ -160,6 +181,26 @@
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-maven-plugin</artifactId>
+				<version>${liquibase-maven-plugin.version}</version>
+				<configuration>
+					<propertyFile>liquibase.properties</propertyFile>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.liquibase.ext</groupId>
+						<artifactId>liquibase-mongodb</artifactId>
+						<version>${liquibase-mongo-ext.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>org.mongodb</groupId>
+						<artifactId>mongodb-driver-sync</artifactId>
+						<version>${mongodb-driver-sync.version}</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>
