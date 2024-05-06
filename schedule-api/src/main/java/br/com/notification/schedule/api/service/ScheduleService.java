@@ -2,6 +2,7 @@ package br.com.notification.schedule.api.service;
 
 import br.com.notification.schedule.api.mapper.NotificationMapper;
 import br.com.notification.schedule.api.mapper.ScheduleMapper;
+import br.com.notification.schedule.api.model.Schedule;
 import br.com.notification.schedule.api.model.dto.CreateAndUpdateScheduleResponseDTO;
 import br.com.notification.schedule.api.model.dto.CreateSchedulePayloadDTO;
 import br.com.notification.schedule.api.model.dto.FindScheduleResponseDTO;
@@ -33,6 +34,12 @@ public class ScheduleService implements IScheduleService {
         this.scheduleRepository = scheduleRepository;
         this.scheduleMapper = scheduleMapper;
         this.notificationMapper = notificationMapper;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Schedule save(Schedule schedule) {
+        return this.scheduleRepository.save(schedule).block();
     }
 
     @Override
